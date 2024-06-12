@@ -1,0 +1,139 @@
+Notes
+
+LinkHover exists twice in the css file.
+
+getAnyPage() in Story is bullshit: The messages makes no sense there and in addition by now we should rather use our pageMap. 
+
+Filtering: 
+* Loading new SaveStats: Reset Filter text?
+* Creating new Var: Adapting filter to show it afterwards?
+
+BUGS:  1. Var list in ElementSetVars is still not sorted. -.-
+BUGS: Changing the filter removes all selected var names - escause me WHAT THE FUCK?
+BUGS: Scrolling on the link button FAILS if you change the direction
+BUGS: If you Alt-F4 the game during the loading animation, the program crashes because it tries to destroy a particleManager that not even exists.
+      [This can simply be avoided by null-checking, but maybe there are more not initialized things in this method]
+
+DESIGN: It does not make too much sense to actually serialize a SaveStat as game save, I should consider creating a new class that really only saves the
+information that is really needed during the game. (See comments in about line 444 in the StoryManager)
+
+IMPROVE: It is strange that you can accept empty and "-" text fields and that they are interpreted as 0 in the dialog box for to change a page number. 
+
+FINISH: Better Alignment in ElementChoosers
+
+Next step: Implement page numbers
+
+Feature: An ElementChooser SAVES its other instances, until a load call comes in. [It would be annoying if you cycle through the link by accident and then the link is gone]
+
+Note for some time later: 
+Is there any proper reason why the page manager holds its own array list of pages?
+This array is copied when loading from a chapter (but the pages ... are not cloned ...), but the new arrayList is saved. 
+I think duplicating this arrayList has no reason, we could as well use the original arrayList (there is no "reset all changes in this chapter" option anyway, as the pages are not cloned)
+and have to pass some less arguments through during saving.
+And the memory leak argument ... well the wrapper-attribute is transient anyway.
+OKAY got the reason: That are just PageHolders stored in this list. 
+So we will keep everything unchanged. ...
+Okay now we will find out why the Story ignores the current chapter during page removal. ... I think it *might* not make a real difference, but the array list in there is not up to date.
+There might be pages that dont even exist anymore (deleting there does not change anything), and there might be pages that are not known yet.  
+
+* Reimplement deleting pages: Now we use the map to erase all references. [And nothing more ...?]
+--> So: Rewrite deleting and adding pages. 
+
+Instead of the current solution with page numbers in a save stat: Simply use the page numbers for that. 
+-> Make a decision whether you want to keep the save stats. 
+
+Add functions to the forumlas: thisPage(), lastPage() <-- Uh but first: Shouldn't I rather store this in the vars?
+- I could extend this also to that I store which answer was chosen, and whether it was a custom one. 
+
+... Up to which point do I extend this concept?
+* What would be possible?
+- Links store the number instead [not useful]
+- The saving position is stored completely within the vars.
+- The start point is stored in the vars
+
+
+* A clever keystroke to switch the between different Items in ElementChoosers?
+
+Finish the combo boxes within the area stuff:
+	Their Design (make a whole own style class? Or stuff like that?)
+	Their list sorted
+	Scrolling on them: Cycling throug all of them. 
+
+* Shortcuts (Ctrl N, Ctrl O, Ctrl S)
+
+Implement the possibility to
+	wait for several seconds
+	end the game
+
+implement the ElementSetEnvironment, this is goning to be some work, and some tricky stuff to stay consistent with the actual particles.
+
+Upload-Center for Fonts, Images and Sounds (new window or just a tab to the right?)
+--> Own window, or other tab at the vars?
+--> Option to use different "folders" to store these files?
+
+Then: Implement the possibility to switch fonts
+
+Then: Implement the possibility to show pictures for a specified amount of seconds
+
+Later ...
+experiment with starting and stopping sounds, looping them (seemlessly), etc
+implement a good way to play them etc.
+...
+
+Make the pages numbered, and make everything based on that [okay maybe thats too much, but ... think about replacing things about it.]
+	Store all numbers within a set, and make sure every page that gets deleted, is also deleted in there
+	
+Implement the possibility to link to Pages with their number (Also use the ... button for this)
+	
+Implement different layers, AS WELL as Pages that appear within several layers.
+
+Maybe anywhere in between: Implement another tab (if we also store our files in another tab) in that you may take notes, and maybe can also select several ones ...
+
+Might it be useful to ...
+	Use a rectangular bar instead of circles to represent pages, and then write their real headlines in it?
+	Support a text syntax to type the pages fast?
+	...
+
+It is important that at some point I should provide additional / improved animations, ones that instantly show the next text, and show it fading in fastly, 
+it just reads the best (compare: 2 the moon, its made pretty well in there)
+
+Further ideas:
+* Shift and the small + button are creating another element before the selected one (? might be difficult to realize)
+* Every page saves (okay it does not itself save this, an external key value store manages that) how often it has been visited, and a function [uh shit, it needs to be overloaded, no argument is itself] can get this value every time. 
+* Shift + scroling swaps elements in an area multi?
+* After clicking to create a new page, the first text element of it should be already selected, so that you can instantly start typing. (For other pages too? WHat if you want to delete them?)
+* Midclick on a var tab deletes it
+* Helping also realized with a "Story"
+* Set colors also within the variables table
+* Within the text, use #insert+formula-here# to show the results of the formulas (And forbid # in the compiler)
+* Support italic text parts
+* Save a title of the game in the Story object.
+* Check the playtime (and save it), using sec() or so
+* Access current date and time with commands. 
+* Shortcut to click a var or fork button
+* Tick something to hide all fork and var buttons
+* Change size of pages (important / unimportant?)
+* Add a var description
+* Individual text, if all technical vars are hidden
+* Various arguments for functions as max in the compiler
+* Show message if the words or, and and not are used (does it even work as a function?)
+
+DONE
+
+Improve the constant SPACING in the EditorWindow, was 5. Look where it is used, and split it up. Smaller values look better at areas etc. 
+2 Variables for Areas, one for frames and one for VBox Spacing. 
+Maybe you should also remove the black lines around them. 
+
+Implement Filtering (until now the controls have no effect)
+--> Better: Let the user type into two textFields which prefixes should [X] NOT be shown
+
+First: What about the temp-flag?
+* Each Page may store a value
+* Not initial (There are temp pages etc)
+* The story contains a counter for the next page number, initial at 0 [user might later change it manually]
+* The story contains a map Integer - Page, where all numbers are stored
+* If a page is created, it is stored there, if it is deleted, it gets deleted! (Don't allow data leaks)
+* Make compatible [fill map, set numbers etc]
+* Design the custom link element
+* Implement its functionality
+A bit of testing please. <-- works, also with saving. Swaps also seem to work well. 
